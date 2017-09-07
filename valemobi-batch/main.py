@@ -47,7 +47,7 @@ def table_has_data(database_connection, table_name):
 def main():
 
     db_name = r'test.db'
-    db_source = r'Data/DataSource.1.sql'
+    db_source = r'Data/DataSource.sql'
     tb_name = r'tb_customer_account'
     tb_source = r'Data/TableSource.sql'
 
