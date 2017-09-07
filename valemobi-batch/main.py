@@ -3,7 +3,17 @@ import sqlite3 as sqlite
 import sys
 
 
-def database_connection_factory(database_name):
+def database_connection_factory(database_name: str) -> sqlite.Connection:
+    '''
+    Abre uma conexão com o banco de dados
+    e retorna a mesma.
+
+    Args:
+    database_name: Nome do banco de dados.
+
+    Retornos:
+    connection: objeto de conexão com o banco.
+    '''
     try:
         connection = sqlite.connect('Data/' + database_name)
         return connection
@@ -12,11 +22,31 @@ def database_connection_factory(database_name):
         sys.exit(1)
 
 
-def database_exists(database_name):
+def database_exists(database_name: str) -> bool:
+    '''
+    Verifica se banco de dados existe.
+
+    Args:
+    database_name: Nome do banco de dados.
+
+    Retornos:
+    Verdadeiro se banco de dados existe, falso caso contrário.
+    '''
     return os.path.isfile('Data/' + database_name)
 
 
-def table_has_data(database_connection, table_name):
+def table_has_data(database_connection: sqlite.Connection, table_name: str) -> bool:
+    '''
+    Verifica se tabela do banco de dados
+    possui dados insertos.
+
+    Args:
+    database_connection: Objeto conexão com o banco de dados.
+    table_name: Nome da tabela do banco de dados.
+
+    Retornos:
+    Verdadeiro caso tenha dados, falso caso contrário.
+    '''
     try:
         cursor = database_connection.cursor()
         sql_query = r'SELECT * from ' + table_name + ' LIMIT 1'
@@ -34,14 +64,19 @@ def table_has_data(database_connection, table_name):
             cursor.close()
 
 
-def execute_sql(database_connection, script_path):
+def execute_sql(database_connection: sqlite.Connection, script_path: str):
+    '''
+    Executa um script SQL.
+
+    Args:
+    database_connection: Objeto conexão com o banco de dados.
+    script_path: caminho no sistema de arquivos para o script SQL.
+    '''
     try:
         cursor = database_connection.cursor()
         script = open(script_path, 'r')
         sql = script.read()
-        result = cursor.executescript(sql)
-        database_connection.commit()
-        return result
+        cursor.executescript(sql)
     except IOError:
         print('Error: ' + script_path + ' file not found...')
         sys.exit(1)
@@ -55,7 +90,17 @@ def execute_sql(database_connection, script_path):
             script.close()
 
 
-def get_customers(database_connection):
+def get_customers(database_connection: sqlite.Connection) -> tuple:
+    '''
+    Retorna do banco de dados os clientes utilizados 
+    no cálculo de média em ordem decrescente por saldo.
+
+    Args:
+    database_connection: Objeto conexão com o banco de dados.
+
+    Retornos:
+    Tuplas com dados de clientes.
+    '''
     try:
         cursor = database_connection.cursor()
         cursor.execute(
@@ -75,7 +120,17 @@ def get_customers(database_connection):
             cursor.close()
 
 
-def get_average(database_connection):
+def get_average(database_connection: sqlite.Connection) -> tuple:
+    '''
+    Calcula no banco de dados a média de valores
+    de saldo de clientes.
+
+    Args:
+    database_connection: Objeto conexão com o banco de dados.
+
+    Retornos:
+    Tupla com valor de média de valores.
+    '''
     try:
         cursor = database_connection.cursor()
         cursor.execute(
@@ -95,12 +150,17 @@ def get_average(database_connection):
 
 
 def main():
+    '''
+    Prepara banco, insere dados e calcula médias de clientes.
+    '''
 
-    db_name = r'test.db'
+    # Scripts SQL para preparação e inserção de dados.
+    db_name = r'Valemobi.db'
     db_source = r'Data/DataSource.sql'
     tb_name = r'tb_customer_account'
     tb_source = r'Data/TableSource.sql'
 
+    # Objeto de conexão com banco de dados.
     connection = None
 
     try:
@@ -110,13 +170,18 @@ def main():
         print('Checando tabela de clientes...')
         execute_sql(connection, tb_source)
 
+        # Verifica se tabela no banco de dados já possuí dados.
+        # Insere dados caso esteja vazia.
         if table_has_data(connection, tb_name) is False:
             print('Populando tabela de clientes...')
             execute_sql(connection, db_source)
 
+        # Calcula e imprime média de valores de clientes.
         print('Calculando média...')
         print('Média total: {:.2f}'.format(get_average(connection)[0]))
 
+        # Imprime dados formatados de todos clientes
+        # utilizados no cálculo de média.
         print('Clientes usados no cálculo de média...')
         for customer in get_customers(connection):
             print('ID: {}, CPF/CNPJ: {}, Nome: {}, Ativo: {}, Saldo: {}'
