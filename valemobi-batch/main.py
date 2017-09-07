@@ -18,8 +18,9 @@ def database_exists(database_name):
 def execute_sql(database_connection, script_path):
     try:
         cursor = database_connection.cursor()
-        script = open(script_path, 'r').read()
-        cursor.executescript(script)
+        script = open(script_path, 'r')
+        sql = script.read()
+        cursor.executescript(sql)
         database_connection.commit()
     except IOError:
         print('Error: ' + script_path + ' file not found...')
@@ -27,6 +28,11 @@ def execute_sql(database_connection, script_path):
     except sqlite.Error as error:
         print('Error: %s' % error.args[0])
         sys.exit(1)
+    finally:
+        if cursor is True:
+            cursor.close()
+        if script is True:
+            script.close()
 
 
 def table_has_data(database_connection, table_name):
@@ -42,6 +48,9 @@ def table_has_data(database_connection, table_name):
     except sqlite.Error as error:
         print('Error: %s' % error.args[0])
         sys.exit(1)
+    finally:
+        if cursor is True:
+            cursor.close()
 
 
 def main():
@@ -61,6 +70,8 @@ def main():
         if table_has_data(connection, tb_name) is False:
             print('Populando tabela de clientes...')
             execute_sql(connection, db_source)
+        print('fim')
+        sys.exit(0)
     except sqlite.Error as error:
         print('Error: %s' % error.args[0])
         sys.exit(1)
