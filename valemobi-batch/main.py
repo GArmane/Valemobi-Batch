@@ -9,7 +9,7 @@ def database_connection_factory(database_name: str) -> sqlite.Connection:
     e retorna a mesma.
 
     Args:
-    database_name: Nome do banco de dados.
+    database_name: nome do arquivo de banco de dados.
 
     Retornos:
     connection: objeto de conexão com o banco.
@@ -27,10 +27,10 @@ def database_exists(database_name: str) -> bool:
     Verifica se banco de dados existe.
 
     Args:
-    database_name: Nome do banco de dados.
+    database_name: nome do banco de dados.
 
     Retornos:
-    Verdadeiro se banco de dados existe, falso caso contrário.
+    bool: verdadeiro se banco de dados existe, falso caso contrário.
     '''
     return os.path.isfile('Data/' + database_name)
 
@@ -41,11 +41,11 @@ def table_has_data(database_connection: sqlite.Connection, table_name: str) -> b
     possui dados insertos.
 
     Args:
-    database_connection: Objeto conexão com o banco de dados.
-    table_name: Nome da tabela do banco de dados.
+    database_connection: objeto conexão com o banco de dados.
+    table_name: nome da tabela do banco de dados.
 
     Retornos:
-    Verdadeiro caso tenha dados, falso caso contrário.
+    bool: verdadeiro caso tenha dados, falso caso contrário.
     '''
     try:
         cursor = database_connection.cursor()
@@ -69,7 +69,7 @@ def execute_sql(database_connection: sqlite.Connection, script_path: str):
     Executa um script SQL.
 
     Args:
-    database_connection: Objeto conexão com o banco de dados.
+    database_connection: objeto conexão com o banco de dados.
     script_path: caminho no sistema de arquivos para o script SQL.
     '''
     try:
@@ -78,7 +78,7 @@ def execute_sql(database_connection: sqlite.Connection, script_path: str):
         sql = script.read()
         cursor.executescript(sql)
     except IOError:
-        print('Error: ' + script_path + ' file not found...')
+        print('Error: ' + script_path + ' arquivo não encontrado...')
         sys.exit(1)
     except sqlite.Error as error:
         print('Error: %s' % error.args[0])
@@ -96,10 +96,10 @@ def get_customers(database_connection: sqlite.Connection) -> tuple:
     no cálculo de média em ordem decrescente por saldo.
 
     Args:
-    database_connection: Objeto conexão com o banco de dados.
+    database_connection: objeto conexão com o banco de dados.
 
     Retornos:
-    Tuplas com dados de clientes.
+    tuple: Tuplas com dados de clientes.
     '''
     try:
         cursor = database_connection.cursor()
@@ -129,7 +129,7 @@ def get_average(database_connection: sqlite.Connection) -> tuple:
     database_connection: Objeto conexão com o banco de dados.
 
     Retornos:
-    Tupla com valor de média de valores.
+    tuple: tupla com valor de média de valores.
     '''
     try:
         cursor = database_connection.cursor()
